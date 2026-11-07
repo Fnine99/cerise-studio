@@ -3,6 +3,7 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { homeFor, roleFrom } from "@/lib/roles";
+import { originFromHeaders } from "@/lib/origin";
 import { createClient } from "@/lib/supabase/server";
 
 export type AuthState = {
@@ -14,7 +15,9 @@ export type AuthState = {
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 async function callbackUrl() {
-  const origin = (await headers()).get("origin") ?? "http://localhost:3000";
+  // Build from the forwarded host so the OAuth redirect lands on the public
+  // deployment URL rather than localhost or an internal Vercel host.
+  const origin = originFromHeaders(await headers());
   return `${origin}/auth/callback`;
 }
 
