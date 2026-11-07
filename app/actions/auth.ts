@@ -76,7 +76,12 @@ export async function signInWithGoogle() {
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
-    options: { redirectTo: await callbackUrl() },
+    options: {
+      redirectTo: await callbackUrl(),
+      // Force the Google account chooser instead of silently reusing the
+      // account already signed in on this browser.
+      queryParams: { prompt: "select_account" },
+    },
   });
   if (error || !data.url) redirect("/login?error=oauth");
 
